@@ -57,6 +57,7 @@ function! s:RunSpecMain(type)
 			call s:notice_msg("Running spec on the spec directory ...")
 		else
 			" try to find a /spec on the current path
+			" TODO: walk on the path to find the spec directory
 			let l:mend = matchend(l:dir,'/spec')
 			if l:mend>0
 				let l:dir = strpart(l:dir,0,l:mend)
