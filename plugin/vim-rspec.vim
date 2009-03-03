@@ -52,8 +52,8 @@ function! s:RunSpecMain(type)
 			return
 		end			
 	else
-		let l:dir = expand("%:p:h")."/spec"
-		if isdirectory(l:dir)>0
+		let l:dir = expand("%:p:h")
+		if isdirectory(l:dir."/spec")>0
 			call s:notice_msg("Running spec on the spec directory ...")
 		else
 			" try to find a /spec on the current path
@@ -62,7 +62,7 @@ function! s:RunSpecMain(type)
 				let l:dir = strpart(l:dir,0,l:mend)
 				call s:notice_msg("Running spec on the spec directory found (".l:dir.") ...")
 			else
-				call s:error_msg("No ".l:dir." directory found")
+				call s:error_msg("No ".l:dir."/spec directory found")
 				return
 			end				
 		end			
