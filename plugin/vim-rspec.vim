@@ -1,7 +1,7 @@
 "
 " Vim Rspec
 " Last change: March 3 2009
-" Version> 0.0.1
+" Version> 0.0.2
 " Maintainer: Eustáquio 'TaQ' Rangel
 " License: GPL
 " URL: git://github.com/taq/vim-rspec
@@ -56,11 +56,18 @@ function! s:RunSpecMain(type)
 		if isdirectory(l:dir."/spec")>0
 			call s:notice_msg("Running spec on the spec directory ...")
 		else
-			" try to find a /spec on the current path
-			" TODO: walk on the path to find the spec directory
-			let l:mend = matchend(l:dir,'/spec')
-			if l:mend>0
-				let l:dir = strpart(l:dir,0,l:mend)
+			" try to find a spec directory on the current path
+			let l:tokens = split(l:dir,"/")
+			let l:dir = ""
+			for l:item in l:tokens
+				call remove(l:tokens,-1)
+				let l:path = "/".join(l:tokens,"/")."/spec"
+				if isdirectory(l:path)
+					let l:dir = l:path
+					break
+				end
+			endfor
+			if len(l:dir)>0
 				call s:notice_msg("Running spec on the spec directory found (".l:dir.") ...")
 			else
 				call s:error_msg("No ".l:dir."/spec directory found")
