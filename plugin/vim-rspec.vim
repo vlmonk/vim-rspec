@@ -83,7 +83,7 @@ function! s:RunSpecMain(type)
 
 	" run the spec command
 	let l:xsl   = expand("~/").".vim/plugin/vim-rspec.xsl"
-	let s:cmd	= l:spec." | xsltproc --novalid --html ".l:xsl." - 2> /dev/null | grep \"^[-\+\[ ]\""
+	let s:cmd	= l:spec." | xsltproc --novalid --html ".l:xsl." - 2> /dev/null | grep \"^[-\+\[\\# ]\""
 	echo
 
 	" put the result on a new buffer

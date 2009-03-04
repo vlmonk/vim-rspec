@@ -30,6 +30,12 @@
 	<xsl:apply-templates select="div"/>
 </xsl:template>
 
+<xsl:template match="dd[@class='spec not_implemented']">
+	<xsl:text># </xsl:text>
+	<xsl:value-of select="span"/>
+	<xsl:text>&#10;</xsl:text>
+</xsl:template>
+
 <xsl:template match="dd[@class='spec failed']/div[@class='failure']">
 	<xsl:text>  </xsl:text><xsl:value-of select="div[@class='message']/pre"/>
 	<xsl:text>&#10;</xsl:text>
