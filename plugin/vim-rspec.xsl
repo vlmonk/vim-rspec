@@ -3,6 +3,9 @@
 <xsl:output method="text"/>
 
 <xsl:template match="/">
+	<xsl:text>* Rspec Results&#10;</xsl:text>
+	<xsl:text>* Parsed with xsltproc (http://www.xmlsoft.org/XSLT/xsltproc2.html)&#10;</xsl:text>
+	<xsl:text> &#10;</xsl:text>
 	<xsl:apply-templates select="html/body/div[@class='rspec-report']/div[@class='results']"/>
 </xsl:template>	
 

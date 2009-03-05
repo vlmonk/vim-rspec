@@ -1,7 +1,7 @@
 "
 " Vim Rspec
-" Last change: March 3 2009
-" Version> 0.0.2
+" Last change: March 4 2009
+" Version> 0.0.4
 " Maintainer: Eustáquio 'TaQ' Rangel
 " License: GPL
 " URL: git://github.com/taq/vim-rspec
@@ -9,12 +9,22 @@
 " Script to run the spec command inside Vim
 " To install, unpack the files on your ~/.vim directory and source it 
 "
+let s:xsltproc_cmd	= ""
+let s:grep_cmd			= ""
+let s:hpricot_cmd		= ""
+let s:xslt				= 0
+let s:hpricot			= 0
+
 function! s:find_xslt()
 	return system("xsltproc --version | head -n1")
 endfunction
 
 function! s:find_grep()
 	return system("grep --version | head -n1")
+endfunction
+
+function! s:find_hpricot()
+	return system("gem search -i hpricot")
 endfunction
 
 function! s:error_msg(msg)
@@ -30,22 +40,39 @@ function! s:notice_msg(msg)
 endfunction
 
 function! s:RunSpecMain(type)
-	let l:xsltproc_cmd = s:find_xslt()
-	if match(l:xsltproc_cmd,'\d')<0
-		call s:error_msg("You need xsltproc to run this script.")
+	if len(s:xsltproc_cmd)<1
+		let s:xsltproc_cmd = s:find_xslt()
+		let s:xslt  = match(s:xsltproc_cmd,'\d')>=0
+	end		
+	if len(s:hpricot_cmd)<1
+		let s:hpricot_cmd = s:find_hpricot()
+		let s:hpricot = match(s:hpricot_cmd,'true')>=0
+	end
+	if !s:hpricot && !s:xslt 
+		call s:error_msg("You need the hpricot gem or xsltproc to run this script.")
 		return
 	end
-	let l:grep_cmd = s:find_grep()
-	if match(l:grep_cmd,'\d')<0
-		call s:error_msg("You need grep to run this script.")
-		return
-	end
+	if len(s:grep_cmd)<1
+		let s:grep_cmd = s:find_grep()
+		if match(s:grep_cmd,'\d')<0
+			call s:error_msg("You need grep to run this script.")
+			return
+		end
+	end		
 	let l:bufn = bufname("%")
+
+	" filters
+	let l:xsl   = expand("~/").".vim/plugin/vim-rspec.xsl"
+	let l:rubys = expand("~/").".vim/plugin/vim-rspec.rb"
+
+	" hpricot gets the priority
+	let l:type		= s:hpricot ? "hpricot" : "xsltproc"
+	let l:filter	= s:hpricot ? "ruby ".l:rubys : "xsltproc --novalid --html ".l:xsl." - "
 
 	" run just the current file
 	if a:type=="file"
 		if match(l:bufn,'_spec.rb')>=0
-			call s:notice_msg("Running spec on the current file ...")
+			call s:notice_msg("Running spec on the current file with ".l:type." ...")
 			let l:spec  = "spec -f h ".l:bufn
 		else
 			call s:error_msg("Seems ".l:bufn." is not a *_spec.rb file")
@@ -54,7 +81,7 @@ function! s:RunSpecMain(type)
 	else
 		let l:dir = expand("%:p:h")
 		if isdirectory(l:dir."/spec")>0
-			call s:notice_msg("Running spec on the spec directory ...")
+			call s:notice_msg("Running spec on the spec directory with ".l:type." ...")
 		else
 			" try to find a spec directory on the current path
 			let l:tokens = split(l:dir,"/")
@@ -68,7 +95,7 @@ function! s:RunSpecMain(type)
 				end
 			endfor
 			if len(l:dir)>0
-				call s:notice_msg("Running spec on the spec directory found (".l:dir.") ...")
+				call s:notice_msg("Running spec with ".l:type." on the spec directory found (".l:dir.") ...")
 			else
 				call s:error_msg("No ".l:dir."/spec directory found")
 				return
@@ -82,8 +109,7 @@ function! s:RunSpecMain(type)
 	end		
 
 	" run the spec command
-	let l:xsl   = expand("~/").".vim/plugin/vim-rspec.xsl"
-	let s:cmd	= l:spec." | xsltproc --novalid --html ".l:xsl." - 2> /dev/null | grep \"^[-\+\[\\# ]\""
+	let s:cmd	= l:spec." | ".l:filter." 2> /dev/null | grep \"^[-\+\[\\#\\* ]\""
 	echo
 
 	" put the result on a new buffer
