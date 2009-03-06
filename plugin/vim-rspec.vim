@@ -1,7 +1,7 @@
 "
 " Vim Rspec
-" Last change: March 4 2009
-" Version> 0.0.4
+" Last change: March 5 2009
+" Version> 0.0.5
 " Maintainer: Eustáquio 'TaQ' Rangel
 " License: GPL
 " URL: git://github.com/taq/vim-rspec
@@ -114,10 +114,13 @@ function! s:RunSpecMain(type)
 
 	" put the result on a new buffer
 	silent exec "new" 
-	set buftype=nofile
+	setl buftype=nofile
 	silent exec "r! ".s:cmd
-	set syntax=vim-rspec
+	setl syntax=vim-rspec
 	silent exec "nnoremap <buffer> <cr> :call <SID>TryToOpen()<cr>"
+	setl foldmethod=expr
+	setl foldexpr=getline(v:lnum)=~'^\+'
+	setl foldtext=\"+--\ \".string(v:foldend-v:foldstart+1).\"\ passed\ \"
 	call cursor(1,1)	
 endfunction
 
