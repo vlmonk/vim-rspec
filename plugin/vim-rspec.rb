@@ -16,7 +16,7 @@ puts " "
 
 (doc/"div[@class='example_group']").each do |example|
 	puts "[#{(example/"dl/dt").inner_html}]"
-	(example/"dl/dd").each do |dd|
+	(example/"dd").each do |dd|
 		txt = (dd/"span:first").inner_html
 		puts "#{classes[dd[:class]]} #{txt}"
 		next if dd[:class]!="spec failed"
